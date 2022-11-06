@@ -6,6 +6,12 @@ import { FastContextValue } from "./FastContextValue";
 import { FastContextValueRef } from "./FastContextValueRef";
 import { useFastContext } from "./useFastContext";
 
+/**
+ * Create a fast context.
+ * 
+ * @param {Value} defaultValue - The default value
+ * @returns {FastContext<Value>} The fast context
+ */
 export function createFastContext<Value extends unknown>(defaultValue: Value): FastContext<Value> {
   const baseContext = createContext<FastContextValueRef<Value>>({
     current: {
