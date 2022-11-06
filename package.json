@@ -55,7 +55,6 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "events": "^3.3.0",
-    "use-event-callback": "^0.1.0"
+    "events": "^3.3.0"
   }
 }
