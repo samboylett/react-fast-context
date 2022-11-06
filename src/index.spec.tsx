@@ -1,8 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import { FC, ReactNode, useState } from "react";
-import { createFastContext } from './createFastContext';
-import { FastContext } from './FastContext';
-import { FastContextShouldUpdate } from "./FastContextShouldUpdate";
+import { createFastContext, FastContext } from './index';
 
 describe('createFastContext', () => {
     test("is a function", () => {
