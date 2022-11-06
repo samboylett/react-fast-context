@@ -7,5 +7,6 @@ export interface FastContext<Value> {
     Provider: (props: { value: Value, children: ReactNode }) => ReactNode;
     Consumer: (props: {
         children: (value: Value) => ReactNode;
+        shouldUpdate: (oldValue: Value, newValue: Value) => boolean;
     }) => ReactNode;
 }
