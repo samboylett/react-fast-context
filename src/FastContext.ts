@@ -7,6 +7,8 @@ import { FastContextValueRef } from "./FastContextValueRef";
 export interface FastContext<Value> {
     /**
      * The native context type used internally.
+     * 
+     * @private
      */
     baseContext: Context<FastContextValueRef<Value>>;
 
