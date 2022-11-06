@@ -93,15 +93,21 @@ describe('createFastContext', () => {
             let Consumer: FC;
             let Provider: FC<{ children: ReactNode }>;
             let shouldUpdate: jest.Mock<boolean>;
+            let consumerRenderCount: number;
 
             beforeEach(() => {  
                 shouldUpdate = jest.fn();
+                consumerRenderCount = 0;
                 
-                Consumer = () => (
-                    <fastContext.Consumer shouldUpdate={shouldUpdate}>
-                        {value => JSON.stringify(value)}
-                    </fastContext.Consumer>
-                );
+                Consumer = () => {
+                    consumerRenderCount++;
+
+                    return (
+                        <fastContext.Consumer shouldUpdate={shouldUpdate}>
+                            {value => JSON.stringify(value)}
+                        </fastContext.Consumer>
+                    );
+                };
 
                 Provider = ({ children }) => {
                     const [value, setValue] = useState<Value>({ foo: "flap", bar: 321 });
@@ -129,7 +135,61 @@ describe('createFastContext', () => {
 
             test("does not call shouldUpdate", () => {
                 expect(shouldUpdate).not.toHaveBeenCalled();
-            })
+            });
+
+            test("renders once", () => {
+                expect(consumerRenderCount).toEqual(1);
+            });
+
+            describe("when updating but shouldUpdate returns false", () => {
+                beforeEach(() => {
+                    shouldUpdate.mockReturnValue(false);
+
+                    act(() => {
+                        changeContextValue({
+                            foo: "poof",
+                            bar: 2,
+                        });
+                    });
+                });
+
+                test("calls shouldUpdate with old and new values", () => {
+                    expect(shouldUpdate).toHaveBeenCalledWith({ foo: "flap", bar: 321 }, { foo: "poof", bar: 2 });
+                });
+
+                test("renders the old context value", () => {
+                    expect(screen.queryByTestId("value")?.textContent).toEqual(JSON.stringify({ foo: "flap", bar: 321 }))
+                });
+
+                test("does not render again", () => {
+                    expect(consumerRenderCount).toEqual(1);
+                });
+            });
+
+            describe("when updating but shouldUpdate returns true", () => {
+                beforeEach(() => {
+                    shouldUpdate.mockReturnValue(true);
+
+                    act(() => {
+                        changeContextValue({
+                            foo: "foop",
+                            bar: 3,
+                        });
+                    });
+                });
+
+                test("calls shouldUpdate with old and new values", () => {
+                    expect(shouldUpdate).toHaveBeenCalledWith({ foo: "flap", bar: 321 }, { foo: "foop", bar: 3 });
+                });
+
+                test("renders the new context value", () => {
+                    expect(screen.queryByTestId("value")?.textContent).toEqual(JSON.stringify({ foo: "foop", bar: 3 }))
+                });
+
+                test("has rendered twice", () => {
+                    expect(consumerRenderCount).toEqual(2);
+                });
+            });
         });
     });
 });
