@@ -7,6 +7,7 @@
     "dist"
   ],
   "types": "dist/index.d.ts",
+  "repository": "https://github.com/samboylett/react-fast-context",
   "scripts": {
     "test": "jest",
     "build": "rollup -c",
