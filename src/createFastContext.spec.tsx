@@ -94,17 +94,23 @@ describe('createFastContext', () => {
             let Provider: FC<{ children: ReactNode }>;
             let shouldUpdate: jest.Mock<boolean>;
             let consumerRenderCount: number;
+            let consumerChildrenRenderCount: number;
 
             beforeEach(() => {  
                 shouldUpdate = jest.fn();
                 consumerRenderCount = 0;
+                consumerChildrenRenderCount = 0;
                 
                 Consumer = () => {
                     consumerRenderCount++;
 
                     return (
                         <fastContext.Consumer shouldUpdate={shouldUpdate}>
-                            {value => JSON.stringify(value)}
+                            {value => {
+                                consumerChildrenRenderCount++;
+
+                                return JSON.stringify(value);
+                            }}
                         </fastContext.Consumer>
                     );
                 };
@@ -139,6 +145,7 @@ describe('createFastContext', () => {
 
             test("renders once", () => {
                 expect(consumerRenderCount).toEqual(1);
+                expect(consumerChildrenRenderCount).toEqual(1);
             });
 
             describe("when updating but shouldUpdate returns false", () => {
@@ -163,6 +170,7 @@ describe('createFastContext', () => {
 
                 test("does not render again", () => {
                     expect(consumerRenderCount).toEqual(1);
+                    expect(consumerChildrenRenderCount).toEqual(1);
                 });
             });
 
@@ -186,8 +194,9 @@ describe('createFastContext', () => {
                     expect(screen.queryByTestId("value")?.textContent).toEqual(JSON.stringify({ foo: "foop", bar: 3 }))
                 });
 
-                test("has rendered twice", () => {
-                    expect(consumerRenderCount).toEqual(2);
+                test("only consumer child has rendered twice", () => {
+                    expect(consumerRenderCount).toEqual(1);
+                    expect(consumerChildrenRenderCount).toEqual(2);
                 });
             });
         });
