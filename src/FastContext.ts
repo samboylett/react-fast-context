@@ -1,5 +1,4 @@
 import { Context, ReactNode } from "react";
-import { FastContextValue } from "./FastContextValue";
 import { FastContextValueRef } from "./FastContextValueRef";
 
 export interface FastContext<Value> {

@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import { Context, createContext, useEffect, useMemo, useRef } from "react";
+import { createContext, useEffect, useMemo, useRef } from "react";
 import { EVENT_UPDATE } from "./events";
 import { FastContext } from "./FastContext";
 import { FastContextValue } from "./FastContextValue";
