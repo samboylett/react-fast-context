@@ -55,14 +55,26 @@ export const MyComponent = () => {
 };
 ```
 
-### Use the hook
+### Use the hooks
 
-Like the normal useContext, but requires a second argument to determine updates:
+You can use `useFastContext`, which is like the normal useContext, but requires a second argument to determine updates:
 
 ```ts
 export const useFoo = () => {
     const { foo } = useFastContext(myContext, (oldValue, newValue) => oldValue.foo !== newValue.foo);
 
     return foo;
+}
+```
+
+Or you can use `useCurrentContext`, which returns the context value wrapped in a ref object, so will never trigger a re-render, but can always be used to access the latest context value.
+
+```ts
+export const Component = () => {
+    const ref = useCurrentContext(myContext);
+
+    return <Child onEvent={() => {
+        console.log(ref.current.foo)
+    }} />
 }
 ```
