@@ -1,4 +1,4 @@
-import { RefObject, useContext } from "react";
+import { MutableRefObject, useContext } from "react";
 import { FastContext } from "./FastContext";
 import { FastContextValueRef } from "./FastContextValueRef";
 
@@ -9,7 +9,7 @@ import { FastContextValueRef } from "./FastContextValueRef";
  * @param {FastContext} fastContext - The context to use
  * @returns {FastContextValueRef<Value>} The context value
  */
-export function useCurrentContext<Value>(fastContext: FastContext<Value>): RefObject<Value> {
+export function useCurrentContext<Value>(fastContext: FastContext<Value>): Readonly<MutableRefObject<Value>> {
     const context = useContext<FastContextValueRef<Value>>(fastContext.baseContext);
 
     return {
