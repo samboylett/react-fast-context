@@ -1,6 +1,6 @@
-import { act, render, screen } from "@testing-library/react";
-import { FC, ReactNode, useState } from "react";
-import { createFastContext, FastContext } from './index';
+import { act, render, renderHook, RenderHookResult, screen } from "@testing-library/react";
+import { FC, ReactNode, RefObject, useState } from "react";
+import { createFastContext, FastContext, useCurrentContext } from './index';
 
 describe('createFastContext', () => {
     test("is a function", () => {
@@ -29,6 +29,102 @@ describe('createFastContext', () => {
 
         test("returns a provider", () => {
             expect(fastContext.Provider).toEqual(expect.any(Function));
+        });
+
+        describe("useCurrentContext", () => {
+            let currentContextRenderCount: number;
+            let hook: RenderHookResult<RefObject<Value>, void>;
+
+            test("is a function", () => {
+                expect(useCurrentContext).toEqual(expect.any(Function));
+            });
+
+            describe("when rendered", () => {
+                beforeEach(() => {
+                    currentContextRenderCount = 0;
+
+                    hook = renderHook<RefObject<Value>, void>(() => {
+                        currentContextRenderCount++;
+
+                        return useCurrentContext(fastContext);
+                    });
+                });
+
+                test("returns the default context value", () => {
+                    expect(hook.result.current.current).toEqual({
+                        foo: "default-foo-value",
+                        bar: 50,
+                    })
+                });
+
+                test("has rendered once", () => {
+                    expect(currentContextRenderCount).toEqual(1);
+                });
+            });
+
+            describe("when rendered in provider", () => {
+                let Provider: FC<{ children: ReactNode }>;
+                let changeState: (value: Value) => void;
+
+                beforeEach(() => {
+                    currentContextRenderCount = 0;
+                    Provider = ({ children }) => {
+                        const [value, setValue] = useState<Value>({
+                            foo: "foo1",
+                            bar: 789,
+                        });
+
+                        changeState = setValue;
+
+                        return (
+                            <fastContext.Provider value={value}>
+                                {children}
+                            </fastContext.Provider>
+                        );
+                    };
+
+                    hook = renderHook<RefObject<Value>, void>(() => {
+                        currentContextRenderCount++;
+
+                        return useCurrentContext(fastContext);
+                    }, {
+                        wrapper: Provider,
+                    });
+                });
+
+                test("returns the current context value", () => {
+                    expect(hook.result.current.current).toEqual({
+                        foo: "foo1",
+                        bar: 789,
+                    })
+                });
+
+                test("has rendered once", () => {
+                    expect(currentContextRenderCount).toEqual(1);
+                });
+
+                describe("when context updates", () => {
+                    beforeEach(() => {
+                        act(() => {
+                            changeState({
+                                foo: "foo2",
+                                bar: 790,
+                            });
+                        });
+                    });
+
+                    test("returns the new current context value", () => {
+                        expect(hook.result.current.current).toEqual({
+                            foo: "foo2",
+                            bar: 790,
+                        })
+                    });
+    
+                    test("has still rendered once", () => {
+                        expect(currentContextRenderCount).toEqual(1);
+                    });
+                });
+            });
         });
 
         describe("when rendering the consumer only", () => {
