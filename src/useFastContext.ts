@@ -21,10 +21,12 @@ export function useFastContext<Value>(fastContext: FastContext<Value>, shouldUpd
                 setValue(newValue);
             }
         };
-
+        
+        baseContext.current.events.setMaxListeners(baseContext.current.events.getMaxListeners() + 1);
         baseContext.current.events.on(EVENT_UPDATE, handleUpdate);
 
         return () => {
+            baseContext.current.events.setMaxListeners(baseContext.current.events.getMaxListeners() - 1);
             baseContext.current.events.off(EVENT_UPDATE, handleUpdate);
         };
     });
