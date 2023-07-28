@@ -30,14 +30,15 @@ export function createFastContext<Value extends unknown>(defaultValue: Value): F
         events: events.current,
       });
 
-      const oldValue = fastValue.current.value;
+      const lastEmittedValue = useRef<Value>(value);
       fastValue.current.value = value;
 
       useEffect(() => {
-        if (oldValue !== value) {
+        if (lastEmittedValue.current !== value) {
           events.current.emit(EVENT_UPDATE, value);
+          lastEmittedValue.current = value;
         }
-      }, [oldValue, value]);
+      }, [lastEmittedValue, value]);
 
       return useMemo(() => (
         <baseContext.Provider value={fastValue}>
